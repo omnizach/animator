@@ -1,0 +1,28 @@
+{
+  "name": "animator",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "Zach Young <zach.young@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/vendor",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "^4.2.6",
+    "jquery": "^3.1.1",
+    "jquery-ui": "^1.12.1",
+    "gsap": "^1.19.0",
+    "bootstrap": "^3.3.7",
+    "font-awesome": "^4.6.3",
+    "underscore": "^1.8.3",
+    "three.js": "threejs#*"
+  }
+}
