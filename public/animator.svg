@@ -1,0 +1,28 @@
+<svg viewBox="0 0 32 32">
+  	<path fill="none"
+        d="M2,32 v-7 a7,7 0,0,1 14,0 v7 m0-6 h-12" 
+        stroke-width="4"
+        stroke="#eee"
+          />
+  	<path fill="none"
+        d="M3,26 v-7 a7,7 0,0,1 14,0 v7 m0-6 h-12" 
+        stroke-width="4"
+        stroke="#ddd"
+          />
+  	<path fill="none"
+        d="M6,20 v-7 a7,7 0,0,1 14,0 v7 m0-6 h-12" 
+        stroke-width="4"
+        stroke="#ccc"
+          />
+  	<path fill="none"
+        d="M11,17 v-7 a7,7 0,0,1 14,0 v7 m0-6 h-12" 
+        stroke-width="4"
+        stroke="#bbb"
+          />
+    <path fill="none"
+        d="M16,16 v-7 a7,7 0,0,1 14,0 v7 m0-6 h-12" 
+        stroke-width="4"
+        stroke="#000"
+          />
+  	
+</svg>

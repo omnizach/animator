@@ -1,0 +1,100 @@
+.storyboard {
+  margin: 0px;
+  padding: 0px;
+}
+
+.storyboard .controls {
+  float: left;
+}
+
+.storyboard .controls .background {
+  stroke: #333;
+  stroke-width: 2px;
+  fill: none;
+}
+
+.storyboard .controls .time-label {
+  font-size: 20px;
+  font-family: monospace;
+  text-anchor: left;
+  fill: #666;
+  cursor: default;
+}
+
+.storyboard .timeline {
+  overflow-x: scroll;
+  overflow-y: none;
+  height:100%;
+}
+
+.storyboard .timeline .background {
+  fill: #eee;
+}
+
+.storyboard svg text {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+
+.storyboard svg text::selection {
+  background: none;
+}
+
+.storyboard .button {
+  cursor: pointer;
+}
+
+.storyboard text.fa {
+  font-family: FontAwesome;
+  fill: #666;
+}
+
+.storyboard .time-axis {
+  text-anchor: start;
+  cursor: default;
+  shape-rendering: crispEdges;
+}
+
+.storyboard .bookmark {
+  fill: #06f;
+  stroke: #06f;
+  stroke-width: 1.5px;
+  fill-opacity: 0.5;
+  stroke-opacity: 0.75;
+}
+
+.storyboard .position {
+  stroke: #f00;
+  stroke-width: 2px;
+  fill: #f00;
+  fill-opacity: 0.5;
+  cursor: col-resize;
+  shape-rendering: crispEdges;
+}
+
+.storyboard .storyboard-label {
+  cursor: pointer;
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+.storyboard .storyboard-label line {
+  stroke: #000;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+.storyboard .tween.selected rect {
+  stroke: #000;
+  stroke-width: 1px;
+}
+
+.target-highlight {
+  fill: #69f;
+  fill-opacity: 0.5;
+  stroke: #000;
+  stroke-width: 1px;
+  stroke-opacity: 0.75;
+}

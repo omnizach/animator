@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animator</title>
+
+    <link href="vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="vendor/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="vendor/jquery-ui/themes/base/jquery-ui.min.css" rel="stylesheet" />
+
+    <link href="css/d3-storyboard.css" rel="stylesheet" />
+
+    <style type="text/css">
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+      body {
+        margin-bottom: 150px;
+      }
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 150px;
+      }
+
+      .shaded {
+        background-color: #ccc;
+      }
+
+      .ppm {
+        shape-rendering: crispEdges;
+      }
+
+      .nitogen {
+        fill: #36f;
+      }
+
+      .oxygen {
+        fill: #f66;
+      }
+
+      .argon {
+        fill: #c6f;
+      }
+
+      .carbon-dioxide {
+        fill: #000;
+      }
+
+    </style>
+  </head>
+  <body>
+<!--
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+          <div class="panel panel-default">
+-->
+            <div class="shaded">
+              <svg id="screen"
+                    width="1280"
+                    height="720"
+                    viewBox="0 0 1280 720"
+                    preserveAspectRatio="xMaxYMax">
+                <rect width="1280" height="720" fill="#fff" />
+                <g class="co2-cube" style="opacity:1" transform="translate(400,400)">
+                  <g class="top" transform="translate(12,-7.5) skewX(-60) scale(1, 0.5)">
+                    <rect x="0" y="0" width="6" height="6" style="fill:#000" />
+                    <rect x="7" y="0" width="6" height="6" style="fill:#000" />
+                    <rect x="0" y="7" width="6" height="6" style="fill:#000" />
+                    <rect x="7" y="7" width="6" height="6" style="fill:#000" />
+                  </g>
+                  <g class="front">
+                    <rect x="0" y="0" width="6" height="6" style="fill:#000" />
+                    <rect x="7" y="0" width="6" height="6" style="fill:#000" />
+                    <rect x="0" y="7" width="6" height="6" style="fill:#000" />
+                    <rect x="7" y="7" width="6" height="6" style="fill:#000" />
+                  </g>
+                  <g class="side" transform="translate(14,0)">
+                    <rect x="0" y="0" width="6" height="6" style="fill:#000" />
+                    <rect x="7" y="0" width="6" height="6" style="fill:#000" />
+                    <rect x="0" y="7" width="6" height="6" style="fill:#000" />
+                    <rect x="7" y="7" width="6" height="6" style="fill:#000" />
+                  </g>
+                </g>        
+              </svg>
+            </div>
+<!--
+          </div>
+        </div>
+      </div>
+    </div>
+-->
+    <div id="timeline" class="footer"></div>
+
+    <script type="text/javascript" src="vendor/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="vendor/d3/d3.min.js"></script>
+    <script type="text/javascript" src="vendor/gsap/src/minified/TweenMax.min.js"></script>
+    <script type="text/javascript" src="vendor/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="js/d3-storyboard.js"></script>
+
+    <script type="text/javascript">
+
+    var tl = new TimelineMax({ paused: true, onUpdate: updateProgress }),
+        d3tl = d3.storyboard()
+                 .on('update', function(pos) { tl.progress(pos / tl.totalDuration(), true); })
+                 .on('play', function() { tl.play(); })
+                 .on('pause', function() { tl.pause(); })
+                 .on('stop', function() {
+                    tl.pause();
+                    tl.seek(0);
+                 })
+                 .on('speed', function(speed) {
+                    tl.timeScale(speed);
+                 });
+
+    function updateProgress() {
+      d3tl.position(tl.progress() * tl.totalDuration());
+    }
+
+    function tweenInfo(tw, baseStartTime) {
+      baseStartTime = baseStartTime || 0;
+
+      if ('getChildren' in tw) {
+        baseStartTime += tw.startTime();
+        return tw.getChildren(false).map(function(t) { return tweenInfo(t, baseStartTime); });
+      }
+
+      return {
+        start: tw.startTime() + baseStartTime,
+        duration: tw.duration(),
+        target: tw.target
+      };
+    }
+
+    d3.select('#timeline')
+      .call(d3tl);
+
+    var screen = d3.select('#screen');
+
+    var ppms = _.shuffle(_.flatten(d3.range(100).map(function(x) { 
+      return d3.range(100).map(function(y) {
+        return { x: x, y: y };
+      });
+    }))).map(function(d, i) { 
+      d.gas = assignClass(i);
+      return d;
+    });
+
+    function assignClass(i) {
+      if (i < 7808) {
+        return 'nitogen';
+      } else if (i < (7808+2095)) {
+        return 'oxygen';
+      } else if (i < (7808+2095+93)) {
+        return 'argon';
+      } else {
+        return 'carbon-dioxide';
+      }
+    }
+/*
+    var ppms = screen.selectAll('.ppm')
+                     .data(ppms)
+                     .enter()
+                     .append('rect')
+                     .attr('class', function(d) { return 'ppm ' + d.gas; })
+                     .attr('x', function(d) { return d.x*7+20; })
+                     .attr('y', function(d) { return d.y*7+10; })
+                     .attr('width', 6)
+                     .attr('height', 6);
+
+    tl.set(ppms.nodes(), { opacity: 0, attr: { x: '+=3', y: '+=3', width: 0, height: 0 } });
+
+    tl.staggerTo('.ppm.nitogen', 0.05, 
+                { opacity: 1, attr: { x: '-=3', y: '-=3', width: 6, height: 6 } }, 0.001 );
+
+    tl.to('.ppm.nitogen', 1.5, { fill: '#ccc' }, '+=0.5');
+
+    tl.staggerTo('.ppm.oxygen', 0.05, 
+                { opacity: 1, attr: { x: '-=3', y: '-=3', width: 6, height: 6 } }, 0.002, '+=1' );
+
+    tl.to('.ppm.oxygen', 1.5, { fill: '#ccc' }, '+=0.5');
+
+    tl.staggerTo('.ppm.argon', 0.1, 
+                { opacity: 1, attr: { x: '-=3', y: '-=3', width: 6, height: 6 } }, 0.05, '+=1' );
+
+    tl.to('.ppm.argon', 1.5, { fill: '#ccc' }, '+=0.5');
+
+    tl.staggerTo('.ppm.carbon-dioxide', 0.5, 
+                { opacity: 1, attr: { x: '-=3', y: '-=3', width: 6, height: 6 } }, 1, '+=1' );
+
+    var co2s = ppms.filter(function(d) { return d.gas == 'carbon-dioxide'; }).nodes(),
+        swaps = ppms.filter(function(d) { return d.x >= 75 && d.x <= 76 && d.y >= 25 && d.y <= 26; }).nodes();
+
+    tl.addLabel('swap', '+=0.5');
+
+    _.each(_.zip(co2s, swaps), function(d, i) {
+      tl.to(d[0], 0.3, { attr: { x: d[1].getAttribute('x'), y: d[1].getAttribute('y') } }, 'swap+=' + (i*0.3));
+      tl.to(d[1], 0.3, { attr: { x: d[0].getAttribute('x'), y: d[0].getAttribute('y') } }, 'swap+=' + (i*0.3));
+    });
+//*/
+
+    tl.set('.co2-cube', { opacity: 1, x: 500, y: 300 });
+
+    //tl.to('.co2-cube', 1.0, { x: '+=300' }, '+=0.5');
+
+    tl.to('.co2-cube .top', 1.0, { skewX: -60, transformOrigin: 'bottom left' }, '+=0.5');
+
+    //tl.to('.co2-cube .side', )
+
+    d3tl.duration(tl.totalDuration())
+        .labels(tl.getLabelsArray())
+        .tweens(_.flatten(tweenInfo(tl)))
+        .screen(screen);
+
+    </script>
+  </body>
+</html>

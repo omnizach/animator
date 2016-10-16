@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animator</title>
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+
+    <link href="css/d3-storyboard.css" rel="stylesheet" />
+
+    <style type="text/css">
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+      body {
+        margin-bottom: 150px;
+        margin-left: 0px;
+        margin-top: 0px;
+      }
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 150px;
+      }
+
+      .shaded {
+        background-color: #ccc;
+      }
+
+      #canvas {
+        width: 1280px;
+        height: 720px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="screen"></div>
+    <div id="timeline" class="footer"></div>
+
+    <script type="text/javascript" src="vendor/d3/d3.min.js"></script>
+    <script type="text/javascript" src="vendor/gsap/src/minified/TweenMax.min.js"></script>
+    <script type="text/javascript" src="vendor/three.js/build/three.min.js"></script>
+
+    <script type="text/javascript" src="js/d3-storyboard.js"></script>
+    <script type="text/javascript" src="js/three-pixel-perfect-scene.js"></script>
+    <script type="text/javascript" src="js/oclock.js"></script>
+
+    <script type="text/javascript">
+
+    var tl = new TimelineMax({ paused: true }),
+        storybord = d3.gsapStoryboard(tl)
+                      .screen(d3.select('#screen')),
+        scene = THREE.pixelPerfectScene();
+
+    scene(d3.select('#screen').node());
+
+    d3.select('#timeline')
+      .call(storybord);
+
+    TweenMax.ticker.addEventListener('tick', scene.render);
+
+    var pixData = [
+      0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff,
+      0xff,0xff,0xff, 0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0xff,0xff,0xff,
+      0xff,0xff,0xff, 0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0xff,0xff,0xff,
+      0xff,0xff,0xff, 0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0xff,0xff,0xff,
+      0xff,0xff,0xff, 0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0xff,0xff,0xff,
+      0xff,0xff,0xff, 0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0xff,0xff,0xff,
+      0xff,0xff,0xff, 0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0,0,0,          0xff,0xff,0xff,
+      0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff, 0xff,0xff,0xff
+    ];
+
+    var tex = new THREE.DataTexture(
+                Uint8Array.from(pixData),
+                8,
+                8,
+                THREE.RGBFormat,
+                THREE.UnsignedByteType);
+    tex.needsUpdate = true;
+    
+    var geometry = new THREE.BoxBufferGeometry( 200, 200, 200 );
+
+    cube = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial( { map: tex } ));
+
+    scene.add(cube);
+
+    tl.to(cube.rotation, 2, {
+      x: oclock(0.5),
+      y: oclock(-1),
+      ease: Power4.easeInOut
+    });
+
+    storybord.updateFromGsapTimeline();
+
+    </script>
+  </body>
+</html>

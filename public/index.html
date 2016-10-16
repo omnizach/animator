@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Animator</title>
+
+    <link href="vendor/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="vendor/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="vendor/jquery-ui/themes/base/jquery-ui.min.css" rel="stylesheet" />
+
+    <link href="css/d3-storyboard.css" rel="stylesheet" />
+
+    <style type="text/css">
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+      body {
+        margin-bottom: 150px;
+      }
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 150px;
+      }
+
+      .shaded {
+        background-color: #ccc;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+          <div class="panel panel-default">
+            <div class="panel-body shaded">
+              <svg id="screen"
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 1280 720"
+                    preserveAspectRatio="xMaxYMax">
+                <rect width="1280" height="720" fill="#fff" />        
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="timeline" class="footer"></div>
+
+    <script type="text/javascript" src="vendor/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="vendor/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="vendor/d3/d3.min.js"></script>
+    <script type="text/javascript" src="vendor/gsap/src/minified/TweenMax.min.js"></script>
+    <script type="text/javascript" src="js/d3-storyboard.js"></script>
+
+    <script type="text/javascript">
+
+    function flatten(arr) {
+      return [].concat.apply([], arr);
+    }
+
+    Array.prototype.shuffle = function() {
+      var i = this.length, j, temp;
+      if ( i === 0 ) return this;
+      while ( --i ) {
+         j = Math.floor( Math.random() * ( i + 1 ) );
+         temp = this[i];
+         this[i] = this[j];
+         this[j] = temp;
+      }
+      return this;
+    };
+
+    var tl = new TimelineMax({ paused: true, onUpdate: updateProgress }),
+        d3tl = d3.storyboard()
+                 .on('update', function(pos) { tl.progress(pos / tl.totalDuration(), true); })
+                 .on('play', function() { tl.play(); })
+                 .on('pause', function() { tl.pause(); })
+                 .on('stop', function() {
+                    tl.pause();
+                    tl.seek(0);
+                 })
+                 .on('speed', function(speed) {
+                    tl.timeScale(speed);
+                 });
+
+    function updateProgress() {
+      d3tl.position(tl.progress() * tl.totalDuration());
+    }
+
+    d3.select('#timeline')
+      .call(d3tl);
+
+    var screen = d3.select('#screen');
+
+    var circle1 = screen
+                  .append('circle')
+                  .attr('r', 10)
+                  .attr('cx', 20)
+                  .attr('cy', 20);
+
+    var circle2 = screen
+                  .append('circle')
+                  .attr('r', 10)
+                  .attr('cx', 20)
+                  .attr('cy', 50);
+
+    var circle3 = screen
+                    .selectAll('.circle')
+                    .data(d3.range(20))
+                    .enter()
+                    .append('circle')
+                      .attr('class', 'circle')
+                      .attr('r', 10)
+                      .attr('cx', 20)
+                      .attr('cy', function(d, i) { return i*30 + 80; });
+
+    var waffle = screen.selectAll('.datum')
+                       .data(d3.range(367))
+                       .enter()
+                       .append('rect')
+                        .attr('class', 'datum')
+                        .attr('x', function(d, i) { return 400 + (i % 20) * 10; })
+                        .attr('y', function(d, i) { return 700 - Math.floor(i/20) * 10; })
+                        .attr('width', 8)
+                        .attr('height', 8);
+
+    tl.to(circle1.nodes(), 1, { attr: { cx: '+=1000' } })
+      .to(circle2.nodes(), 2, { attr: { cx: 1260 } }, '-=0.0')
+      .addLabel('sample label')
+      .addLabel('label 2', 4)
+      .staggerTo(circle3.nodes(), Math.PI, { attr: { cx: 1260 } }, 0.5);
+
+    tl.staggerTo(waffle.filter(function(d, i) { return i > 169; }).nodes().shuffle(), 0.2, 
+        { attr: { y: '-=25', x: '+=7' }, ease:Back.easeOut.config(1.7) }, 0.005);
+
+    function tweenInfo(tw, baseStartTime) {
+      baseStartTime = baseStartTime || 0;
+
+      if ('getChildren' in tw) {
+        baseStartTime += tw.startTime();
+        return tw.getChildren(false).map(function(t) { return tweenInfo(t, baseStartTime); });
+      }
+
+      return {
+        start: tw.startTime() + baseStartTime,
+        duration: tw.duration(),
+        target: tw.target
+      };
+    }
+
+    var tweenLeaves = flatten(tweenInfo(tl));
+
+    d3tl.duration(tl.totalDuration())
+        .labels(tl.getLabelsArray())
+        .tweens(tweenLeaves)
+        .screen(screen);
+
+    </script>
+  </body>
+</html>
